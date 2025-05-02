@@ -1,8 +1,8 @@
 <template>
   <div class="no-scroll">
     <Headers></Headers>
-    <el-carousel ref="carousel" @wheel="handleWheel" height="100vh" direction="vertical" :autoplay="false"
-      :interval="5000" indicator-position="none" pause-on-hover='false' @mousewheel="rollScroll($event)">
+    <el-carousel ref="carousel" @wheel="rollScroll" height="100vh" direction="vertical" :autoplay="false"
+      :interval="5000" indicator-position="none" pause-on-hover='false'>
       <el-carousel-item>
         <Zujian1></Zujian1>
       </el-carousel-item>
@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import Headers from './view/headers.vue';
 import Zujian1 from './view/zujian1.vue';
 import Zujian22 from './view/zujian22.vue';
@@ -34,6 +34,7 @@ const isTrackpad = (event) => {
 };
 
 const rollScroll = (event) => {
+  // 在轮播图内阻止默认滚动行为
   event.preventDefault();
 
   const now = Date.now();
@@ -63,7 +64,7 @@ const rollScroll = (event) => {
   isScrolling.value = true;
   lastScrollTime.value = now;
 
-  const direction = (event.wheelDelta || -event.detail) > 0 ? 'up' : 'down';
+  const direction = (event.wheelDelta || -event.detail || -event.deltaY) > 0 ? 'up' : 'down';
 
   // 执行切换
   direction === 'up' ? carousel.value.prev() : carousel.value.next();
@@ -73,8 +74,47 @@ const rollScroll = (event) => {
     isScrolling.value = false;
   }, isTrackpadEvent ? 600 : 400);
 };
+
+// 创建一个样式元素来隐藏所有滚动条
+const createGlobalStyle = () => {
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    /* 隐藏所有滚动条 */
+    ::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+      display: none !important;
+    }
+    
+    * {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    
+    /* 确保滚动功能正常 */
+    html, body {
+      overflow: auto !important;
+    }
+  `;
+  document.head.appendChild(styleEl);
+  return styleEl;
+};
+
+let globalStyle = null;
+
+onMounted(() => {
+  // 添加全局样式来隐藏所有滚动条
+  globalStyle = createGlobalStyle();
+});
+
+onUnmounted(() => {
+  // 清理全局样式
+  if (globalStyle) {
+    document.head.removeChild(globalStyle);
+  }
+});
 </script>
-<!-- indicator-position -->
+
 <style>
 /* 移动端优化 */
 @media (max-width: 768px) {
@@ -90,6 +130,31 @@ const rollScroll = (event) => {
   }
 }
 
+/* 隐藏所有滚动条 - 这些样式会被JavaScript动态添加的样式增强 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: none;
+}
+
+/* IE and Edge */
+* {
+  -ms-overflow-style: none;
+}
+
+/* 允许滚动但隐藏滚动条 */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
 .el-carousel__container {
   overscroll-behavior: contain;
   /* 阻止滚动传播 */
@@ -101,13 +166,10 @@ const rollScroll = (event) => {
 
 .no-scroll {
   width: 100%;
-  -ms-overflow-style: none;
-  /* overflow: hidden;
-  position: fixed; */
-  /* -ms-overflow-style: none; */
+  height: 100vh;
 }
 
-/* Global styles */
+/* 其余样式保持不变 */
 :root {
   --primary-color: #7acc35;
   --secondary-color: #00b5ad;
@@ -309,7 +371,6 @@ const rollScroll = (event) => {
 }
 
 .reservation-count {
-
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 2.5rem;
@@ -346,7 +407,6 @@ const rollScroll = (event) => {
 }
 
 .scroll-down {
-
   position: absolute;
   bottom: -150px;
   left: 44%;
@@ -610,7 +670,6 @@ const rollScroll = (event) => {
 }
 
 .learn-more-button {
-
   border: none !important;
   padding: 12px 30px !important;
   font-size: 1rem !important;
@@ -667,7 +726,6 @@ const rollScroll = (event) => {
   color: rgba(0, 0, 0, 0.5);
   animation: bounce 2s infinite;
 }
-
 
 /* Animations */
 @keyframes float {
@@ -758,8 +816,6 @@ const rollScroll = (event) => {
   .title {
     font-size: 2.4rem;
   }
-
-
 }
 
 @media (max-width: 1024px) {
@@ -795,14 +851,11 @@ const rollScroll = (event) => {
     flex-direction: column;
     padding-top: 4rem;
     margin-top: -30rem;
-
   }
 
   .app-description {
     text-align: center;
-
   }
-
 
   .description {
     margin: 0 auto 2rem;

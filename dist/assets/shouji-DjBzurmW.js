@@ -1,1 +1,0 @@
-import{_ as e,Z as s,a as n,b as o}from"./zujian3-DuOjFfpo.js";import{c as r,a,F as t,o as c}from"./index-8HXuu2Z9.js";const l={__name:"shouji",setup(_){return(m,u)=>(c(),r(t,null,[a(e),a(s),a(n),a(o)],64))}};export{l as default};
