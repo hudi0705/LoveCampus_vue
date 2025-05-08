@@ -11,15 +11,19 @@
 
 <script setup>
 import { ref } from 'vue';
-import Headers from './view/headers.vue';
-import Zujian1 from './view/zujian1.vue';
-import Zujian22 from './view/zujian22.vue';
-import Zujian3 from './view/zujian3.vue';
+import Headers from '@/view/headers.vue';
+import Zujian1 from '@/view/zujian1.vue';
+import Zujian22 from '@/view/zujian22.vue';
+import Zujian3 from '@/view/zujian3.vue';
+import zujian5Vue from '@/view/zujian5.vue';
+import Zujian6liuyan from '@/view/zujian6liuyan.vue';
 
 const slides = ref([
   { component: Zujian1 },
   { component: Zujian22 },
-  { component: Zujian3 }
+  { component: Zujian3 },
+  { component: zujian5Vue },
+  { component: Zujian6liuyan }
 ]);
 </script>
 

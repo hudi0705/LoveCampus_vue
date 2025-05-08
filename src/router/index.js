@@ -1,5 +1,3 @@
-import Home from '@/components/home.vue'
-import Zujian2 from '@/components/view/zujian4.vue'
 import {
   createRouter,
   createWebHistory
@@ -17,7 +15,7 @@ const router = createRouter({
     {
       path: '/zujian2',
       name: 'zujian2',
-      component: () => import('@/components/view/zujian4.vue'),
+      component: () => import('@/view/zujian4.vue'),
     },
     {
       path: '/shouji',

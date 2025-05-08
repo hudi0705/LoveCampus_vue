@@ -12,17 +12,24 @@
       <el-carousel-item>
         <Zujian3></Zujian3>
       </el-carousel-item>
+      <el-carousel-item>
+        <Zujian5></Zujian5>
+      </el-carousel-item>
+      <el-carousel-item>
+        <Zujian6liuyan></Zujian6liuyan>
+      </el-carousel-item>
     </el-carousel>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import Headers from './view/headers.vue';
-import Zujian1 from './view/zujian1.vue';
-import Zujian22 from './view/zujian22.vue';
-import Zujian3 from './view/zujian3.vue';
-
+import Headers from '@/view/headers.vue';
+import Zujian1 from '@/view/zujian1.vue';
+import Zujian22 from '@/view/zujian22.vue';
+import Zujian3 from '@/view/zujian3.vue';
+import Zujian5 from '@/view/zujian5.vue';
+import Zujian6liuyan from '@/view/zujian6liuyan.vue';
 const carousel = ref(null);
 const lastScrollTime = ref(0);
 const isScrolling = ref(false);

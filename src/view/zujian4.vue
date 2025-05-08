@@ -41,7 +41,7 @@
             <div class="qr-code-card">
               <div class="qr-code-image">
                 <!-- 微信支付二维码 -->
-                <el-image src="../src/assets/img/zhifu.jpg" />
+                <img src="../assets/img/zhifu.jpg" style="width: 150%;height: 150%;" />
               </div>
               <div class="qr-code-title">微信支付</div>
             </div>
@@ -354,7 +354,7 @@ const srcList = ref([
 }
 
 .qr-code-image {
-  width: 100%;
+  width: 150%;
   height: auto;
   aspect-ratio: 1/1;
   /* 保持正方形 */

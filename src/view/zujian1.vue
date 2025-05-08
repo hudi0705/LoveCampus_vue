@@ -27,7 +27,7 @@
         <el-form-item label="验证码" prop="verificationCode">
           <div class="verification-code-container">
             <el-input v-model="form.verificationCode" placeholder="请输入验证码" :disabled="loading"></el-input>
-            <el-button type="primary" class="send-code-btn" @click="sendVerificationCode"
+            <el-button type="primary" class="send-code-btn" @click="sendVerificationCode(form.email)"
               :disabled="codeSending || !form.email || codeButtonDisabled" :loading="codeSending">
               {{ codeButtonText }}
             </el-button>
@@ -36,7 +36,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false" :disabled="loading">取消</el-button>
+          <el-button @click="cancelDialog" :disabled="loading">取消</el-button>
           <el-button type="primary" @click="submitReservation" :loading="loading">
             {{ loading ? '提交中...' : '确认预约' }}
           </el-button>
@@ -50,7 +50,7 @@
 import axios from "axios";
 import router from '@/router';
 import { ElMessage, ElMessageBox, ElDialog, ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
-import { onMounted, ref, reactive, computed } from 'vue';
+import { onMounted, ref, reactive, computed, onUnmounted } from 'vue';
 
 // 赞助功能保持不变
 const zanzhu = () => {
@@ -66,6 +66,9 @@ const form = reactive({
   email: '',
   verificationCode: ''
 });
+
+// 存储定时器的引用，以便后续清除
+const deleteEmailTimeout = ref(null);
 
 // 验证码倒计时
 const countdown = ref(0);
@@ -106,25 +109,44 @@ const openReservationModal = () => {
   dialogVisible.value = true;
 };
 
+// 清除定时器
+const clearDeleteEmailTimeout = () => {
+  if (deleteEmailTimeout.value) {
+    clearTimeout(deleteEmailTimeout.value);
+    deleteEmailTimeout.value = null;
+  }
+};
+
+// 取消对话框
+const cancelDialog = () => {
+  dialogVisible.value = false;
+  clearDeleteEmailTimeout();
+  form.email = '';
+  form.verificationCode = '';
+};
+
 // 发送验证码
-const sendVerificationCode = () => {
+const sendVerificationCode = (email) => {
+  // 如果已经有一个定时器在运行，先清除它
+  clearDeleteEmailTimeout();
+
   formRef.value.validateField('email', (valid) => {
     if (valid) {
       codeSending.value = true;
 
-      // 这里应该是发送验证码的API请求
-      // 为了演示，我们模拟一个API请求
-      setTimeout(() => {
-        codeSending.value = false;
-        ElMessage({
-          type: 'success',
-          message: '验证码已发送至您的邮箱',
-          duration: 3000
+      // 设置60秒后执行DeleteEmail的定时器
+      deleteEmailTimeout.value = setTimeout(() => {
+        // 60秒后如果还没验证成功，执行DeleteEmail
+        axios.post('http://60.205.177.31:1234/DeleteEmail', {
+          "email": email
+        }).then(() => {
+          console.log('Email deleted due to timeout');
+        }).catch(error => {
+          console.error('Failed to delete email:', error);
         });
-        startCountdown();
-      }, 1500);
+      }, 60000);
 
-      // 实际的API请求可能如下:
+      // 发送验证码的API请求
       axios.post('http://60.205.177.31:1234/sendEmail', {
         'email': form.email
       })
@@ -142,14 +164,16 @@ const sendVerificationCode = () => {
             message: '验证码发送失败/您已预约过',
             duration: 3000
           });
+          // 如果发送验证码失败，清除定时器
+          clearDeleteEmailTimeout();
         })
         .finally(() => {
           codeSending.value = false;
         });
-
     }
   });
 };
+
 // 提交预约
 const submitReservation = () => {
   if (!formRef.value) return;
@@ -171,6 +195,10 @@ const submitReservation = () => {
             duration: 3000
           });
           dialogVisible.value = false;
+
+          // 验证成功，清除定时器，不执行DeleteEmail
+          clearDeleteEmailTimeout();
+
           form.email = ''; // 清空表单
           form.verificationCode = ''; // 清空验证码
           getReservationCount(); // 刷新预约人数
@@ -209,8 +237,13 @@ const getReservationCount = () => {
     });
 };
 
+// 组件挂载和卸载时的处理
 onMounted(() => {
   getReservationCount();
+});
+
+onUnmounted(() => {
+  clearDeleteEmailTimeout();
 });
 </script>
 
